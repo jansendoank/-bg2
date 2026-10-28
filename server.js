@@ -103,6 +103,16 @@ app.post('/api/whatsapp/make-owner', checkAuth, (req, res) => {
   res.json(result);
 });
 
+// Check WhatsApp Group ID from Link
+app.post('/api/group/check-id', checkAuth, async (req, res) => {
+  const link = req.body.link || req.body.groupLink;
+  if (!link) {
+    return res.status(400).json({ success: false, error: 'Link grup WhatsApp wajib diisi' });
+  }
+  const result = await botManager.checkGroupId(link);
+  res.json(result);
+});
+
 // Get Commands Catalog
 app.get('/api/commands', (req, res) => {
   res.json({

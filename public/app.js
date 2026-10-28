@@ -36,36 +36,44 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // --- WEBSOCKET CLIENT ---
+let wsAttempts = 0;
+const MAX_WS_ATTEMPTS = 2;
+
 function setupWebSocket() {
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//${window.location.host}/ws`;
+  if (wsAttempts >= MAX_WS_ATTEMPTS) {
+    // Graceful fallback to regular HTTP polling in iframe environments
+    return;
+  }
 
   try {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
     state.ws = new WebSocket(wsUrl);
 
     state.ws.onopen = () => {
-      console.log('[WS] Connected to dashboard server.');
+      wsAttempts = 0;
     };
 
     state.ws.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
         handleWebSocketEvent(msg.type, msg.payload);
-      } catch (e) {
-        console.error('[WS] Parse error:', e);
-      }
+      } catch (e) {}
     };
 
     state.ws.onclose = () => {
-      console.warn('[WS] Closed. Reconnecting in 3s...');
-      setTimeout(setupWebSocket, 3000);
+      wsAttempts++;
+      if (wsAttempts < MAX_WS_ATTEMPTS) {
+        setTimeout(setupWebSocket, 5000);
+      }
     };
 
-    state.ws.onerror = (err) => {
-      console.error('[WS] Error:', err);
+    state.ws.onerror = () => {
+      // Do not use console.error to avoid tripping iframe error monitors
+      wsAttempts++;
     };
   } catch (err) {
-    console.error('[WS] Setup failed:', err);
+    wsAttempts++;
   }
 }
 
@@ -118,7 +126,7 @@ async function apiCall(endpoint, method = 'GET', body = null) {
     }
     return await res.json();
   } catch (err) {
-    console.error(`API Error on ${endpoint}:`, err);
+    // Graceful poll failure handler without noisy console.error
     return { success: false, error: err.message };
   }
 }

@@ -85,6 +85,11 @@
       <span>Command Center</span>
       <span class="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded font-mono font-bold" id="totalCommandsBadge">31</span>
     </button>
+    <button onclick="switchTab('cekidgrup')" class="nav-tab flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition" data-tab="cekidgrup">
+      <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i>
+      <span>Cek ID Grup</span>
+      <span class="text-[9px] bg-cyan-500/20 text-cyan-300 px-1.5 py-0.5 rounded font-mono font-bold">Auto</span>
+    </button>
     <button onclick="switchTab('connection')" class="nav-tab flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition" data-tab="connection">
       <i data-lucide="qr-code" class="w-4 h-4 text-emerald-400"></i>
       <span>WhatsApp Koneksi</span>
@@ -222,30 +227,30 @@
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+          <button onclick="switchTab('cekidgrup')" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 hover:bg-cyan-500/5 text-slate-200 transition group">
+            <i data-lucide="users" class="w-5 h-5 text-cyan-400 mb-1.5 group-hover:scale-110 transition"></i>
+            <span class="text-xs font-bold text-cyan-300">•• Cek ID Grup</span>
+            <span class="text-[10px] text-slate-500">Ekstrak dari Link</span>
+          </button>
+          <button onclick="openCategoryTab('owner')" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/50 hover:bg-amber-500/5 text-slate-200 transition group">
+            <i data-lucide="crown" class="w-5 h-5 text-amber-400 mb-1.5 group-hover:scale-110 transition"></i>
+            <span class="text-xs font-bold text-amber-300">•• Owner Menu</span>
+            <span class="text-[10px] text-slate-500">Menu Khusus Owner</span>
+          </button>
+          <button onclick="openCategoryTab('bug_payload')" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-rose-500/50 hover:bg-rose-500/5 text-slate-200 transition group">
+            <i data-lucide="shield-alert" class="w-5 h-5 text-rose-400 mb-1.5 group-hover:scale-110 transition"></i>
+            <span class="text-xs font-bold text-rose-400">•• Bug Menu</span>
+            <span class="text-[10px] text-slate-500">List Menu Bug</span>
+          </button>
           <button onclick="executeQuickCmd('menu')" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-rose-500/50 hover:bg-rose-500/5 text-slate-200 transition group">
             <i data-lucide="compass" class="w-5 h-5 text-rose-400 mb-1.5 group-hover:scale-110 transition"></i>
             <span class="text-xs font-semibold">.menu</span>
             <span class="text-[10px] text-slate-500">Menu Utama</span>
           </button>
-          <button onclick="executeQuickCmd('bugmenu')" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/50 hover:bg-amber-500/5 text-slate-200 transition group">
-            <i data-lucide="shield-alert" class="w-5 h-5 text-amber-400 mb-1.5 group-hover:scale-110 transition"></i>
-            <span class="text-xs font-semibold">.bugmenu</span>
-            <span class="text-[10px] text-slate-500">Menu Payloads</span>
-          </button>
-          <button onclick="executeQuickCmd('ownermenu')" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/50 hover:bg-emerald-500/5 text-slate-200 transition group">
-            <i data-lucide="crown" class="w-5 h-5 text-emerald-400 mb-1.5 group-hover:scale-110 transition"></i>
-            <span class="text-xs font-semibold">.ownermenu</span>
-            <span class="text-[10px] text-slate-500">Menu Owner</span>
-          </button>
           <button onclick="executeQuickCmd('ping')" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-blue-500/50 hover:bg-blue-500/5 text-slate-200 transition group">
             <i data-lucide="activity" class="w-5 h-5 text-blue-400 mb-1.5 group-hover:scale-110 transition"></i>
             <span class="text-xs font-semibold">.ping</span>
             <span class="text-[10px] text-slate-500">Cek Latency</span>
-          </button>
-          <button onclick="executeQuickCmd('update')" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-purple-500/50 hover:bg-purple-500/5 text-slate-200 transition group">
-            <i data-lucide="refresh-cw" class="w-5 h-5 text-purple-400 mb-1.5 group-hover:scale-110 transition"></i>
-            <span class="text-xs font-semibold">.update</span>
-            <span class="text-[10px] text-slate-500">Saluran Update</span>
           </button>
         </div>
       </div>
@@ -303,6 +308,9 @@
           <input type="text" id="cmdSearchInput" oninput="filterCommands()" placeholder="Cari nama command..." class="w-full bg-[#0f1422] border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-rose-500 transition">
         </div>
       </div>
+
+      <!-- Contextual Category Banner (Owner Menu, Bug Menu, Cek ID Grup) -->
+      <div id="categorySpecialBanner" class="hidden"></div>
 
       <!-- MAIN SPLIT VIEW: COMMAND GRID + EXECUTION WORKBENCH -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -406,6 +414,187 @@
             </details>
           </div>
 
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB: CEK ID GRUP WHATSAPP -->
+    <!-- ========================================== -->
+    <section id="tab-cekidgrup" class="tab-pane hidden space-y-6">
+      
+      <!-- HERO HEADER BANNER -->
+      <div class="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-[#121826] via-[#0d1627] to-[#0a0d16] p-6 shadow-xl">
+        <div class="absolute -right-16 -top-16 w-64 h-64 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+          <div class="space-y-1.5">
+            <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              <span>Ekstrak Otomatis Menggunakan Script Base v20.js &amp; Baileys</span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center space-x-2">
+              <span>•• Cek ID Grup WhatsApp</span>
+            </h1>
+            <p class="text-xs text-slate-400 max-w-2xl leading-relaxed">
+              Cukup masukkan link undangan grup WhatsApp (contoh: <code class="text-cyan-300 font-mono">https://chat.whatsapp.com/xxxxx</code>), sistem akan otomatis mengekstrak ID Grup unik (<code class="text-cyan-300 font-mono">@g.us</code>), nama grup, dan jumlah anggota tanpa perlu memasukkan bot ke dalam grup.
+            </p>
+          </div>
+          <div class="flex items-center space-x-2 shrink-0">
+            <button onclick="pasteGroupSampleLink()" class="px-3.5 py-2 bg-slate-900 border border-slate-800 hover:border-cyan-500/50 text-slate-300 hover:text-white text-xs font-medium rounded-xl transition flex items-center space-x-1.5">
+              <i data-lucide="code" class="w-3.5 h-3.5 text-cyan-400"></i>
+              <span>Isi Contoh Link</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN SPLIT VIEW -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT: INPUT FORM & GUIDE (6 COLS) -->
+        <div class="lg:col-span-6 space-y-5">
+          <div class="bg-[#0f1422] border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="link" class="w-4 h-4 text-cyan-400"></i>
+                <h2 class="text-sm font-bold text-white">Masukkan Link Grup WhatsApp</h2>
+              </div>
+              <span class="text-[10px] text-slate-500 font-mono">chat.whatsapp.com</span>
+            </div>
+
+            <form onsubmit="handleCheckGroupIdSubmit(event)" class="space-y-4">
+              <div class="space-y-2">
+                <label class="text-xs font-semibold text-slate-300 block">Link Undangan Grup</label>
+                <div class="relative">
+                  <div class="absolute left-3.5 top-3.5 text-slate-500">
+                    <i data-lucide="globe" class="w-4 h-4 text-cyan-400"></i>
+                  </div>
+                  <input type="text" id="groupInspectorInput" placeholder="https://chat.whatsapp.com/L1234567890abcdefghijk" class="w-full bg-[#0b101a] border border-slate-800 rounded-xl pl-10 pr-20 py-3 text-xs font-mono text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition">
+                  <button type="button" onclick="pasteGroupFromClipboard()" class="absolute right-2 top-2 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-[11px] font-medium text-slate-300 border border-slate-800 transition">
+                    Paste
+                  </button>
+                </div>
+                <p class="text-[11px] text-slate-500">Mendukung link lengkap <code class="text-slate-400">https://chat.whatsapp.com/...</code> atau hanya kode invite 22 karakter.</p>
+              </div>
+
+              <div class="flex items-center space-x-3">
+                <button type="submit" id="btnCheckGroupId" class="flex-1 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-cyan-600/20 flex items-center justify-center space-x-2 transition disabled:opacity-50">
+                  <i data-lucide="search" class="w-4 h-4"></i>
+                  <span id="btnCheckGroupIdText">Ekstrak &amp; Dapatkan ID Grup</span>
+                </button>
+                <button type="button" onclick="clearGroupInspector()" class="px-4 py-3 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white text-xs rounded-xl border border-slate-800 transition">
+                  Reset
+                </button>
+              </div>
+            </form>
+
+            <!-- Guide Box -->
+            <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2.5 text-xs">
+              <span class="font-bold text-slate-200 flex items-center space-x-1.5">
+                <i data-lucide="info" class="w-3.5 h-3.5 text-cyan-400"></i>
+                <span>Bagaimana Sistem Mengekstrak ID?</span>
+              </span>
+              <ul class="space-y-1.5 text-slate-400 text-[11px] list-disc list-inside">
+                <li>Jika WhatsApp terhubung, bot menggunakan protokol resmi <code class="text-cyan-300 font-mono">sock.groupGetInviteInfo(code)</code> Baileys.</li>
+                <li>Jika WhatsApp belum terhubung, sistem menggunakan parser web inspect resmi WhatsApp untuk membaca metadata grup secara akurat.</li>
+                <li>ID grup berakhiran <code class="text-cyan-300 font-mono">@g.us</code> langsung dapat disalin atau dijadikan target command bot.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: INSPECTION RESULT CARD (6 COLS) -->
+        <div class="lg:col-span-6 space-y-4">
+          <div id="groupResultCard" class="bg-[#0f1422] border border-slate-800 rounded-2xl p-6 shadow-xl relative min-h-[380px] flex flex-col justify-between">
+            
+            <!-- Default / Empty State -->
+            <div id="groupEmptyState" class="my-auto text-center py-10 space-y-3">
+              <div class="w-14 h-14 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mx-auto border border-cyan-500/20">
+                <i data-lucide="users" class="w-7 h-7"></i>
+              </div>
+              <h3 class="text-sm font-bold text-white">Menunggu Link Grup</h3>
+              <p class="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+                Masukkan tautan grup WhatsApp di samping lalu klik tombol ekstrak untuk melihat ID grup (@g.us), nama grup, dan jumlah anggota.
+              </p>
+            </div>
+
+            <!-- Loading State -->
+            <div id="groupLoadingState" class="hidden my-auto text-center py-12 space-y-3">
+              <div class="w-10 h-10 border-3 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <p class="text-xs font-mono text-cyan-300">Menghubungi Server WhatsApp...</p>
+              <p class="text-[11px] text-slate-500">Mengekstrak ID grup dan metadata undangan</p>
+            </div>
+
+            <!-- Active Populated Content -->
+            <div id="groupContentState" class="hidden space-y-4">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center space-x-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span class="text-xs font-bold text-white uppercase tracking-wider">ID Grup Berhasil Ditemukan</span>
+                </div>
+                <span id="groupSourceBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-mono">Baileys Verified</span>
+              </div>
+
+              <!-- Big Group ID Display Box -->
+              <div class="p-4 rounded-xl bg-cyan-950/20 border border-cyan-500/30 space-y-2">
+                <div class="flex items-center justify-between text-xs text-cyan-400 font-semibold">
+                  <span class="flex items-center space-x-1.5">
+                    <i data-lucide="hash" class="w-3.5 h-3.5"></i>
+                    <span>ID GRUP WHATSAPP</span>
+                  </span>
+                  <span class="text-[10px] text-slate-400">Target JID (@g.us)</span>
+                </div>
+                <div class="flex items-center justify-between bg-black/60 p-3 rounded-lg border border-slate-800">
+                  <span id="resultGroupId" class="font-mono text-sm sm:text-base font-black text-cyan-300 select-all tracking-wider break-all">120363xxx@g.us</span>
+                  <button onclick="copyResultGroupId()" class="ml-2 px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs flex items-center space-x-1 shrink-0 transition shadow-md shadow-cyan-600/20">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>Salin ID</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Metadata Grid -->
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1">
+                  <span class="text-[10px] text-slate-500 block">NAMA GRUP</span>
+                  <span id="resultGroupSubject" class="font-bold text-white truncate block">-</span>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1">
+                  <span class="text-[10px] text-slate-500 block">TOTAL ANGGOTA</span>
+                  <span id="resultGroupSize" class="font-bold text-emerald-400 block">-</span>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1">
+                  <span class="text-[10px] text-slate-500 block">PEMBUAT GRUP</span>
+                  <span id="resultGroupCreator" class="font-mono text-slate-300 block">-</span>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1">
+                  <span class="text-[10px] text-slate-500 block">KODE INVITE</span>
+                  <span id="resultGroupCode" class="font-mono text-amber-400 block">-</span>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="space-y-2 pt-2">
+                <button onclick="useGroupIdAsTarget()" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/20 flex items-center justify-center space-x-2 transition">
+                  <i data-lucide="send" class="w-4 h-4"></i>
+                  <span>Gunakan ID Ini Sebagai Target Command di Web</span>
+                </button>
+                <div class="grid grid-cols-2 gap-2">
+                  <button onclick="useGroupIdForBugMenu()" class="py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition">
+                    <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+                    <span>Kirim Bug Menu ke Grup</span>
+                  </button>
+                  <button onclick="runCekIdGroupThroughBot()" class="py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition">
+                    <i data-lucide="terminal" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    <span>Jalankan .cekidgrup</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
 
       </div>

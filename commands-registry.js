@@ -449,6 +449,24 @@ const COMMANDS = [
     isPremOnly: false,
     inputs: [],
     example: '.rokok'
+  },
+  {
+    name: 'cekidgrup',
+    aliases: ['cekid', 'idgc'],
+    category: 'tools',
+    categoryName: 'Tools & Grup',
+    icon: 'users',
+    badge: 'Group Inspector',
+    description: 'Cek dan ekstrak ID grup (@g.us) secara otomatis cukup dengan memasukkan link grup WhatsApp.',
+    requiresTarget: true,
+    targetType: 'groupLink',
+    targetPlaceholder: 'https://chat.whatsapp.com/xxxxx',
+    isOwnerOnly: false,
+    isPremOnly: false,
+    inputs: [
+      { name: 'link', label: 'Link Undangan Grup WhatsApp', type: 'text', placeholder: 'https://chat.whatsapp.com/xxxxx', required: true }
+    ],
+    example: '.cekidgrup https://chat.whatsapp.com/xxxxx'
   }
 ];
 
@@ -456,9 +474,10 @@ module.exports = {
   COMMANDS,
   CATEGORIES: [
     { id: 'all', name: 'Semua Command', icon: 'grid' },
-    { id: 'menu', name: 'Menu & Info', icon: 'compass' },
-    { id: 'owner', name: 'Owner & Akses', icon: 'crown' },
-    { id: 'bug_payload', name: 'Menu Bantai Bantai', icon: 'zap' },
+    { id: 'tools', name: '•• Cek ID Grup', icon: 'users' },
+    { id: 'owner', name: '•• Owner Menu', icon: 'crown' },
+    { id: 'bug_payload', name: '•• Bug Menu', icon: 'shield-alert' },
+    { id: 'menu', name: 'Menu Utama', icon: 'compass' },
     { id: 'broadcast', name: 'Broadcast & Status', icon: 'radio' }
   ]
 };
