@@ -5,7 +5,7 @@ global.connect = true
 //
 global.publicX = true 
 //
-global.owner = ['6288987025424'] 
+global.owner = ['60192836453'] 
 //
 //System Bot Settings
 global.prefa = ['','!','.',',','🐤','🗿'] // Prefix // Not Change
