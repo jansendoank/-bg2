@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Onepiece WhatsApp Bot & Web Dashboard</title>
+  <meta name="description" content="Professional Web Dashboard and Command Center for Onepiece WhatsApp Bot with real-time Baileys connection, QR code, live command execution, and activity monitoring.">
+  <meta property="og:title" content="Onepiece WhatsApp Bot & Web Dashboard">
+  <meta property="og:description" content="Professional Web Dashboard and Command Center for Onepiece WhatsApp Bot with real-time Baileys connection, QR code, live command execution, and activity monitoring.">
+  
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff1f2',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+              900: '#4c0519',
+              emerald: '#10b981',
+              dark: '#0a0d14',
+              surface: '#111726',
+              border: '#1e293b'
+            }
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'Menlo', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="bg-[#080b11] text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-rose-500/30 selection:text-rose-200">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="sticky top-0 z-50 bg-[#0c101a]/90 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-600/20 text-white font-bold text-lg tracking-wider">
+        OP
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-rose-400 via-amber-200 to-rose-400 bg-clip-text text-transparent">Ônepicè VIP</span>
+          <span class="text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded-full">v19.0.0</span>
+        </div>
+        <p class="text-xs text-slate-400">By ĎapzyOfficiàl • Web Command Center</p>
+      </div>
+    </div>
+
+    <!-- Live Status Pill & Quick Mode Toggle -->
+    <div class="flex items-center space-x-3">
+      <div id="connectionStatusBadge" class="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-medium">
+        <span class="w-2 h-2 rounded-full bg-slate-500 animate-pulse" id="statusDot"></span>
+        <span id="statusText" class="text-slate-300">Memeriksa...</span>
+      </div>
+
+      <div class="hidden sm:flex items-center bg-slate-900/90 border border-slate-800 p-1 rounded-xl text-xs">
+        <button id="modePublicBtn" onclick="toggleBotMode(true)" class="px-2.5 py-1 rounded-lg font-medium transition text-slate-400 hover:text-white">PUBLIC</button>
+        <button id="modeSelfBtn" onclick="toggleBotMode(false)" class="px-2.5 py-1 rounded-lg font-medium transition text-slate-400 hover:text-white">SELF</button>
+      </div>
+
+      <button id="authBtn" onclick="openLoginModal()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold rounded-lg shadow-md transition shadow-rose-600/20">
+        <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+        <span id="authBtnText">Login Admin</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN NAVIGATION TABS -->
+  <nav class="bg-[#0b0e17] border-b border-slate-800/60 px-4 lg:px-8 py-2 overflow-x-auto scrollbar-none flex items-center space-x-1 sm:space-x-2">
+    <button onclick="switchTab('overview')" class="nav-tab active flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition" data-tab="overview">
+      <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+      <span>Dashboard</span>
+    </button>
+    <button onclick="switchTab('commands')" class="nav-tab flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition" data-tab="commands">
+      <i data-lucide="terminal" class="w-4 h-4 text-amber-400"></i>
+      <span>Command Center</span>
+      <span class="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded font-mono font-bold" id="totalCommandsBadge">31</span>
+    </button>
+    <button onclick="switchTab('connection')" class="nav-tab flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition" data-tab="connection">
+      <i data-lucide="qr-code" class="w-4 h-4 text-emerald-400"></i>
+      <span>WhatsApp Koneksi</span>
+    </button>
+    <button onclick="switchTab('access')" class="nav-tab flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition" data-tab="access">
+      <i data-lucide="shield-check" class="w-4 h-4 text-blue-400"></i>
+      <span>Owner & Prem</span>
+    </button>
+    <button onclick="switchTab('logs')" class="nav-tab flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition" data-tab="logs">
+      <i data-lucide="scroll-text" class="w-4 h-4 text-purple-400"></i>
+      <span>Live Logs</span>
+    </button>
+    <button onclick="switchTab('wipsbyte')" class="nav-tab flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition" data-tab="wipsbyte">
+      <i data-lucide="server" class="w-4 h-4 text-cyan-400"></i>
+      <span>Panduan Wipsbyte</span>
+    </button>
+  </nav>
+
+  <!-- CONTENT CONTAINER -->
+  <main class="flex-1 p-4 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: OVERVIEW / DASHBOARD -->
+    <!-- ========================================== -->
+    <section id="tab-overview" class="tab-pane space-y-6">
+      
+      <!-- HERO STATUS BANNER -->
+      <div class="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-br from-[#121826] via-[#0d121e] to-[#0a0d16] p-6 shadow-xl">
+        <div class="absolute -right-16 -top-16 w-64 h-64 bg-rose-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute right-32 -bottom-16 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+          <div class="space-y-2">
+            <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold">
+              <i data-lucide="flame" class="w-3.5 h-3.5"></i>
+              <span>One Piece VIP Bot Web Edition</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
+              Web Dashboard & Command Center
+            </h1>
+            <p class="text-slate-400 text-xs sm:text-sm max-w-2xl leading-relaxed">
+              Jalankan seluruh 31 command asli bot Onepiece langsung melalui web tanpa harus mengetik manual di WhatsApp. Pantau koneksi real-time, scan QR, kelola akses owner, dan pantau log aktivitas sistem.
+            </p>
+          </div>
+
+          <!-- Quick Actions Button Group -->
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button onclick="switchTab('commands')" class="flex items-center space-x-2 px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-rose-600/25 transition">
+              <i data-lucide="play" class="w-4 h-4"></i>
+              <span>Buka Command Center</span>
+            </button>
+            <button onclick="switchTab('connection')" class="flex items-center space-x-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold rounded-xl transition">
+              <i data-lucide="qr-code" class="w-4 h-4 text-emerald-400"></i>
+              <span>Hubungkan WhatsApp</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 STAT METRICS CARDS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Card 1: Connection -->
+        <div class="bg-[#0f1422] border border-slate-800/80 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-400">Status WhatsApp</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+              <i data-lucide="wifi" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-lg font-bold text-white flex items-center space-x-2" id="dashWaStatus">
+              <span class="capitalize">Disconnected</span>
+            </div>
+            <p class="text-xs text-slate-400 truncate mt-0.5" id="dashWaUser">Belum terhubung</p>
+          </div>
+        </div>
+
+        <!-- Card 2: Commands Executed -->
+        <div class="bg-[#0f1422] border border-slate-800/80 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-400">Total Command Dieksekusi</span>
+            <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+              <i data-lucide="terminal" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-white font-mono" id="dashTotalCmds">0</div>
+            <p class="text-xs text-slate-400 mt-0.5">Semua command dari web & WA</p>
+          </div>
+        </div>
+
+        <!-- Card 3: Bot Mode & Uptime -->
+        <div class="bg-[#0f1422] border border-slate-800/80 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-400">Mode Bot & Uptime</span>
+            <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center">
+              <i data-lucide="clock" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-lg font-bold text-white flex items-center space-x-2">
+              <span id="dashBotMode" class="text-rose-400">PUBLIC</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5 font-mono" id="dashUptime">0s</p>
+          </div>
+        </div>
+
+        <!-- Card 4: Access Counts -->
+        <div class="bg-[#0f1422] border border-slate-800/80 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-400">Akses Database</span>
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center">
+              <i data-lucide="users" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-lg font-bold text-white flex items-center space-x-2">
+              <span id="dashOwnerCount">1</span> <span class="text-xs text-slate-400">Owner</span>
+              <span class="text-slate-600">•</span>
+              <span id="dashPremCount">0</span> <span class="text-xs text-slate-400">Prem</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Tersimpan di Access/ JSON</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUICK COMMAND LAUNCHER -->
+      <div class="bg-[#0f1422] border border-slate-800 rounded-xl p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i>
+            <h2 class="text-sm font-bold text-white">Eksekusi Cepat (Instant Action)</h2>
+          </div>
+          <span class="text-xs text-slate-400">Klik untuk langsung menjalankan command asli</span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+          <button onclick="executeQuickCmd('menu')" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-rose-500/50 hover:bg-rose-500/5 text-slate-200 transition group">
+            <i data-lucide="compass" class="w-5 h-5 text-rose-400 mb-1.5 group-hover:scale-110 transition"></i>
+            <span class="text-xs font-semibold">.menu</span>
+            <span class="text-[10px] text-slate-500">Menu Utama</span>
+          </button>
+          <button onclick="executeQuickCmd('bugmenu')" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/50 hover:bg-amber-500/5 text-slate-200 transition group">
+            <i data-lucide="shield-alert" class="w-5 h-5 text-amber-400 mb-1.5 group-hover:scale-110 transition"></i>
+            <span class="text-xs font-semibold">.bugmenu</span>
+            <span class="text-[10px] text-slate-500">Menu Payloads</span>
+          </button>
+          <button onclick="executeQuickCmd('ownermenu')" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/50 hover:bg-emerald-500/5 text-slate-200 transition group">
+            <i data-lucide="crown" class="w-5 h-5 text-emerald-400 mb-1.5 group-hover:scale-110 transition"></i>
+            <span class="text-xs font-semibold">.ownermenu</span>
+            <span class="text-[10px] text-slate-500">Menu Owner</span>
+          </button>
+          <button onclick="executeQuickCmd('ping')" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-blue-500/50 hover:bg-blue-500/5 text-slate-200 transition group">
+            <i data-lucide="activity" class="w-5 h-5 text-blue-400 mb-1.5 group-hover:scale-110 transition"></i>
+            <span class="text-xs font-semibold">.ping</span>
+            <span class="text-[10px] text-slate-500">Cek Latency</span>
+          </button>
+          <button onclick="executeQuickCmd('update')" class="flex flex-col items-center justify-center p-3 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-purple-500/50 hover:bg-purple-500/5 text-slate-200 transition group">
+            <i data-lucide="refresh-cw" class="w-5 h-5 text-purple-400 mb-1.5 group-hover:scale-110 transition"></i>
+            <span class="text-xs font-semibold">.update</span>
+            <span class="text-[10px] text-slate-500">Saluran Update</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- RECENT LOGS SNIPPET -->
+      <div class="bg-[#0f1422] border border-slate-800 rounded-xl p-5 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="scroll-text" class="w-4 h-4 text-purple-400"></i>
+            <h2 class="text-sm font-bold text-white">Log Aktivitas Terkini</h2>
+          </div>
+          <button onclick="switchTab('logs')" class="text-xs text-rose-400 hover:underline">Lihat Semua Log</button>
+        </div>
+        <div class="bg-black/40 rounded-lg p-3 font-mono text-xs text-slate-300 space-y-1.5 max-h-48 overflow-y-auto" id="dashRecentLogs">
+          <div class="text-slate-500">Memuat log sistem...</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ========================================== -->
+    <!-- TAB 2: COMMAND CENTER (ALL COMMANDS) -->
+    <!-- ========================================== -->
+    <section id="tab-commands" class="tab-pane hidden space-y-6">
+
+      <!-- WhatsApp Live Sync Banner -->
+      <div id="cmdWaSyncBanner" class="p-3.5 rounded-xl border border-slate-800 bg-gradient-to-r from-slate-900/90 via-[#0f1422] to-slate-900/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+        <div class="flex items-center space-x-3">
+          <div class="w-3 h-3 rounded-full bg-slate-500 animate-pulse shrink-0" id="cmdWaBannerDot"></div>
+          <div>
+            <div class="text-xs font-bold text-white flex items-center space-x-2">
+              <span id="cmdWaBannerTitle">WhatsApp: Disconnected</span>
+              <span id="cmdWaBannerPill" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">Simulasi Web</span>
+            </div>
+            <p class="text-[11px] text-slate-400" id="cmdWaBannerDesc">Command berjalan dalam mode simulasi browser. Hubungkan WhatsApp untuk eksekusi nyata.</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="switchTab('connection')" class="px-3 py-1.5 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition">
+            <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
+            <span>Buka Koneksi WA</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills & Search Bar -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-1.5" id="cmdCategoriesContainer">
+          <!-- Populated via JS -->
+        </div>
+
+        <div class="relative w-full md:w-72">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+          <input type="text" id="cmdSearchInput" oninput="filterCommands()" placeholder="Cari nama command..." class="w-full bg-[#0f1422] border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-rose-500 transition">
+        </div>
+      </div>
+
+      <!-- MAIN SPLIT VIEW: COMMAND GRID + EXECUTION WORKBENCH -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT: COMMANDS LIST (7 COLS) -->
+        <div class="lg:col-span-7 space-y-3">
+          <div class="flex items-center justify-between px-1">
+            <span class="text-xs font-semibold text-slate-400">Daftar Command Tersedia</span>
+            <span class="text-xs text-slate-500" id="cmdFilteredCount">Menampilkan 31 command</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[640px] overflow-y-auto pr-1" id="commandsGrid">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- RIGHT: EXECUTION WORKBENCH & PREVIEW (5 COLS) -->
+        <div class="lg:col-span-5 space-y-4">
+          
+          <!-- SELECTED COMMAND EXECUTION FORM -->
+          <div class="bg-[#0f1422] border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+            <div class="flex items-start justify-between pb-3 border-b border-slate-800/80">
+              <div class="space-y-1">
+                <div class="flex items-center space-x-2">
+                  <span class="text-base font-black text-white font-mono" id="selectedCmdTitle">.menu</span>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400" id="selectedCmdBadge">Universal</span>
+                </div>
+                <p class="text-xs text-slate-400 leading-snug" id="selectedCmdDesc">Menampilkan menu utama bot dan informasi sistem.</p>
+              </div>
+            </div>
+
+            <!-- Dynamic Form Inputs -->
+            <form id="cmdExecForm" onsubmit="handleCommandSubmit(event)" class="space-y-3.5">
+              <div id="cmdDynamicInputs" class="space-y-3">
+                <!-- Inputs injected dynamically based on command requirements -->
+              </div>
+
+              <!-- Target Recipient Selection -->
+              <div class="space-y-1.5 p-3 rounded-xl bg-slate-900/80 border border-slate-800/80">
+                <div class="flex items-center justify-between">
+                  <label class="text-[11px] font-semibold text-slate-300 flex items-center space-x-1.5">
+                    <i data-lucide="send" class="w-3.5 h-3.5 text-rose-400"></i>
+                    <span>Tujuan Eksekusi WhatsApp</span>
+                  </label>
+                  <span class="text-[10px] text-emerald-400 font-mono" id="currentDestinationLabel">Chat Saya / Bot</span>
+                </div>
+                <select id="targetRecipientType" onchange="toggleRecipientType(this.value)" class="w-full bg-[#0b101a] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-rose-500">
+                  <option value="self">Chat Saya Sendiri (Nomor Terhubung / Notes to Self)</option>
+                  <option value="custom">Kirim ke Nomor / Grup WA Lain</option>
+                </select>
+                <div id="customRecipientBox" class="hidden mt-2 space-y-1">
+                  <input type="text" id="customRecipientInput" placeholder="Contoh: 628123456789 atau 120363xxx@g.us" class="w-full bg-[#07090e] border border-slate-800 rounded-lg px-3 py-1.5 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-rose-500">
+                  <p class="text-[10px] text-slate-500">Nomor dengan format 628xxx atau ID grup @g.us.</p>
+                </div>
+              </div>
+
+              <!-- Real WhatsApp dispatch checkbox -->
+              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/80 border border-slate-800/80">
+                <div class="flex items-center space-x-2">
+                  <input type="checkbox" id="sendToWaCheckbox" checked class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-rose-600 focus:ring-0">
+                  <label for="sendToWaCheckbox" class="text-xs font-medium text-slate-200 cursor-pointer">
+                    Otomatis kirim hasil ke WhatsApp
+                  </label>
+                </div>
+                <span class="text-[10px] text-emerald-400 font-semibold" id="sendWaNotice">(Aktif saat terhubung)</span>
+              </div>
+
+              <!-- Run Button -->
+              <button type="submit" id="runCmdBtn" class="w-full py-2.5 bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-rose-600/20 flex items-center justify-center space-x-2 transition disabled:opacity-50">
+                <i data-lucide="play" class="w-4 h-4 fill-white"></i>
+                <span id="runCmdBtnText">Jalankan Command</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- RESULT INSPECTOR & WHATSAPP CHAT PREVIEW -->
+          <div class="bg-[#0f1422] border border-slate-800 rounded-2xl p-5 space-y-3 shadow-xl">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800/80">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="message-square" class="w-4 h-4 text-emerald-400"></i>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider">Hasil Eksekusi Handler</h3>
+              </div>
+              <div class="flex items-center space-x-2">
+                <span id="execDuration" class="text-[10px] font-mono text-slate-400">0ms</span>
+                <span id="execStatusBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">Ready</span>
+              </div>
+            </div>
+
+            <!-- WhatsApp Message Preview Bubble Container -->
+            <div class="bg-[#0b101b] border border-slate-900 rounded-xl p-3 min-h-[200px] max-h-[360px] overflow-y-auto space-y-2 text-xs" id="chatPreviewContainer">
+              <div class="text-slate-500 text-center py-10 flex flex-col items-center justify-center space-y-2">
+                <i data-lucide="terminal" class="w-8 h-8 opacity-40"></i>
+                <span>Pilih command dan klik "Jalankan Command" untuk melihat respons asli handler bot.</span>
+              </div>
+            </div>
+
+            <!-- Raw JSON Output Toggle -->
+            <details class="text-[11px] font-mono">
+              <summary class="text-slate-400 cursor-pointer hover:text-slate-200">Lihat Output Raw JSON</summary>
+              <pre class="mt-2 p-2.5 rounded bg-black/60 border border-slate-800 text-slate-300 overflow-x-auto text-[10px] max-h-48" id="rawOutputJson">{}</pre>
+            </details>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: WHATSAPP CONNECTION & QR -->
+    <!-- ========================================== -->
+    <section id="tab-connection" class="tab-pane hidden space-y-6">
+      
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+        <!-- LEFT: QR CODE & PAIRING CODE PANEL (7 COLS) -->
+        <div class="md:col-span-7 bg-[#0f1422] border border-slate-800 rounded-2xl p-6 space-y-6 shadow-xl">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+            <div>
+              <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                <i data-lucide="smartphone" class="w-5 h-5 text-emerald-400"></i>
+                <span>Hubungkan Nomor WhatsApp</span>
+              </h2>
+              <p class="text-xs text-slate-400 mt-0.5">Pilih metode Pairing Code (langsung via nomor) atau Scan QR.</p>
+            </div>
+
+            <!-- Method Switcher Pills -->
+            <div class="flex items-center bg-slate-900 border border-slate-800 p-1 rounded-xl text-xs">
+              <button id="methodPairingBtn" onclick="setConnectMethod('pairing')" class="px-3 py-1.5 rounded-lg font-medium transition bg-rose-600 text-white">Pairing Code</button>
+              <button id="methodQrBtn" onclick="setConnectMethod('qr')" class="px-3 py-1.5 rounded-lg font-medium transition text-slate-400 hover:text-white">QR Code</button>
+            </div>
+          </div>
+
+          <!-- SUB-VIEW 1: PAIRING CODE (PHONE NUMBER) - DEFAULT/FEATURED -->
+          <div id="pairingSection" class="space-y-5 py-2">
+            <div class="max-w-lg mx-auto space-y-4">
+              
+              <!-- Phone Input & Country Presets -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-bold text-slate-200 flex items-center space-x-1.5">
+                    <i data-lucide="phone" class="w-3.5 h-3.5 text-rose-400"></i>
+                    <span>Masukkan Nomor WhatsApp Anda</span>
+                  </label>
+                  <span class="text-[10px] text-slate-400">Format internasional</span>
+                </div>
+
+                <!-- Country Code Quick Helpers -->
+                <div class="flex items-center space-x-1.5 text-[11px]">
+                  <span class="text-slate-500 text-[10px] mr-1">Prefix Cepat:</span>
+                  <button type="button" onclick="setPhonePrefix('62')" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 transition font-mono">+62 (ID)</button>
+                  <button type="button" onclick="setPhonePrefix('60')" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 transition font-mono">+60 (MY)</button>
+                  <button type="button" onclick="setPhonePrefix('1')" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 transition font-mono">+1 (US)</button>
+                </div>
+
+                <div class="relative">
+                  <span class="absolute left-3.5 top-3 text-xs font-mono text-slate-500 font-bold">+</span>
+                  <input type="text" id="pairingPhoneInput" oninput="handlePhoneInputChange(this.value)" placeholder="6281234567890" class="w-full bg-[#0b101a] border border-slate-800 rounded-xl pl-8 pr-4 py-3 text-sm font-mono text-slate-100 placeholder-slate-600 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition">
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
+                  <span>Format WhatsApp: <span id="phoneFormattedPreview" class="text-emerald-400 font-mono font-semibold">+62 8...</span></span>
+                  <span class="text-[10px] text-slate-500">Otomatis konversi 08xx ke 628xx</span>
+                </div>
+              </div>
+
+              <!-- Request Button -->
+              <button id="requestPairingBtn" onclick="requestPairingCode()" class="w-full py-3 bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-rose-600/25 flex items-center justify-center space-x-2 transition disabled:opacity-50">
+                <i data-lucide="key" class="w-4 h-4"></i>
+                <span id="requestPairingBtnText">Dapatkan 8-Digit Pairing Code</span>
+              </button>
+
+              <!-- Loading State Alert -->
+              <div id="pairingLoadingBox" class="hidden p-4 rounded-xl bg-blue-950/30 border border-blue-800/60 text-center space-y-2">
+                <div class="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <p class="text-xs font-semibold text-blue-200">Menghubungi server WhatsApp Web...</p>
+                <p class="text-[11px] text-blue-300/70">Membuat sesi pairing aman untuk nomor Anda. Mohon tunggu ~2-4 detik.</p>
+              </div>
+
+              <!-- Pairing Code Display Box -->
+              <div id="pairingCodeBox" class="hidden p-6 rounded-2xl bg-gradient-to-b from-[#131b2e] to-[#0d1322] border-2 border-emerald-500/40 text-center space-y-3.5 shadow-2xl relative overflow-hidden">
+                <div class="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                  <span>Kode Pairing WhatsApp Aktif</span>
+                </div>
+
+                <div class="text-3xl sm:text-4xl font-black font-mono tracking-widest text-emerald-300 py-2 select-all drop-shadow-md" id="pairingCodeDisplay">
+                  ---- - ----
+                </div>
+
+                <div class="flex items-center justify-center gap-2">
+                  <button onclick="copyPairingCode()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg shadow-md transition flex items-center space-x-1.5">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>Salin Kode</span>
+                  </button>
+                  <button onclick="requestPairingCode()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-lg transition flex items-center space-x-1">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    <span>Minta Ulang</span>
+                  </button>
+                </div>
+
+                <!-- 4 Step Instructions -->
+                <div class="bg-black/40 rounded-xl p-3.5 text-left text-xs space-y-2 border border-slate-800/80">
+                  <div class="font-bold text-slate-200 flex items-center space-x-1.5">
+                    <i data-lucide="help-circle" class="w-3.5 h-3.5 text-amber-400"></i>
+                    <span>Langkah memasukkan kode di WhatsApp Anda:</span>
+                  </div>
+                  <ol class="space-y-1 text-[11px] text-slate-300 list-decimal pl-4 leading-relaxed">
+                    <li>Buka aplikasi <b>WhatsApp</b> di HP Anda.</li>
+                    <li>Ketuk menu titik tiga (⋮) atau <b>Pengaturan</b> &gt; <b>Perangkat Tertaut</b>.</li>
+                    <li>Ketuk <b>Tautkan Perangkat</b>, lalu pilih <b>Tautkan dengan nomor telepon saja</b> di bagian bawah.</li>
+                    <li>Ketikkan kode 8-digit <code class="text-emerald-400 font-mono font-bold bg-emerald-950/50 px-1 py-0.5 rounded" id="instructionCodeSnippet">di atas</code> ke HP Anda.</li>
+                  </ol>
+                </div>
+
+                <p class="text-[10px] text-slate-400">Kode pairing akan otomatis diverifikasi oleh sistem segera setelah Anda memasukkannya di HP.</p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- SUB-VIEW 2: QR CODE SCANNER -->
+          <div id="qrSection" class="hidden space-y-5 flex flex-col items-center justify-center py-4">
+            <div class="w-64 h-64 bg-white rounded-2xl p-3 flex items-center justify-center shadow-2xl relative border-4 border-slate-800" id="qrWrapper">
+              <img id="qrImage" src="" alt="WhatsApp QR Code" class="w-full h-full object-contain hidden">
+              <div id="qrPlaceholder" class="flex flex-col items-center justify-center text-slate-600 text-center p-4 space-y-2">
+                <i data-lucide="qr-code" class="w-16 h-16 text-slate-400"></i>
+                <p class="text-xs font-semibold text-slate-700">QR Code belum aktif</p>
+                <p class="text-[10px] text-slate-500">Klik "Generate QR Code Baru" di bawah</p>
+              </div>
+            </div>
+
+            <div class="text-center space-y-1">
+              <p class="text-xs font-semibold text-slate-200">Cara Menghubungkan lewat QR:</p>
+              <ol class="text-[11px] text-slate-400 space-y-0.5 text-left max-w-sm mx-auto list-decimal pl-4">
+                <li>Buka WhatsApp di ponsel Anda</li>
+                <li>Pilih Menu (titik tiga) atau Pengaturan &gt; Perangkat Tertaut</li>
+                <li>Ketuk "Tautkan Perangkat" dan arahkan kamera ke QR Code di atas</li>
+              </ol>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-center gap-3 w-full">
+              <button onclick="requestStartConnection('qr')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/20 flex items-center space-x-2 transition">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                <span>Generate QR Code Baru</span>
+              </button>
+              <button onclick="requestDisconnect()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs rounded-xl transition">
+                <span>Putuskan Koneksi</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- CONNECTED NUMBER CONTROL CENTER (APPEARS WHEN CONNECTED) -->
+          <div id="connectedControlPanel" class="hidden pt-4 border-t border-slate-800 space-y-4">
+            <div class="p-4 rounded-xl bg-gradient-to-r from-emerald-950/40 via-slate-900 to-emerald-950/40 border border-emerald-500/30 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                  <h3 class="text-xs font-extrabold text-white uppercase tracking-wider">Pusat Kontrol Nomor Terhubung</h3>
+                </div>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold font-mono">SEPENUHNYA DIATUR DI WEB</span>
+              </div>
+              <p class="text-xs text-slate-300">
+                Nomor <b id="panelConnectedPhone" class="text-emerald-400 font-mono">+628...</b> telah terhubung. Seluruh command di Command Center otomatis terkirim dan dijalankan langsung di WhatsApp akun ini.
+              </p>
+
+              <!-- Quick Control Actions for the Connected Number -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                <button onclick="sendTestPingToWhatsApp()" class="p-2.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center justify-center space-x-1.5 transition">
+                  <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                  <span>Tes Kirim Pesan Ping ke WA</span>
+                </button>
+                <button onclick="makeConnectedNumberOwner()" class="p-2.5 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center justify-center space-x-1.5 transition">
+                  <i data-lucide="crown" class="w-3.5 h-3.5"></i>
+                  <span>Jadikan Nomor Ini Owner Bot</span>
+                </button>
+                <button onclick="executeQuickCmd('menu')" class="p-2.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center justify-center space-x-1.5 transition">
+                  <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
+                  <span>Kirim .menu ke WhatsApp</span>
+                </button>
+                <button onclick="switchTab('commands')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold flex items-center justify-center space-x-1.5 transition">
+                  <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
+                  <span>Buka Command Center</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT: CONNECTION STATE & SESSION INFO (5 COLS) -->
+        <div class="md:col-span-5 space-y-4">
+          
+          <div class="bg-[#0f1422] border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+            <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+              <i data-lucide="info" class="w-4 h-4 text-blue-400"></i>
+              <span>Status Koneksi Saat Ini</span>
+            </h3>
+
+            <div class="space-y-3 text-xs">
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80">
+                <span class="text-slate-400">Status Baileys</span>
+                <span id="detailStatusText" class="font-bold text-slate-200 capitalize">Disconnected</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80">
+                <span class="text-slate-400">Nama Bot (pushName)</span>
+                <span id="detailBotName" class="font-bold text-slate-200">Ônepicè</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80">
+                <span class="text-slate-400">Nomor Telepon Bot</span>
+                <span id="detailBotJid" class="font-mono text-slate-200">-</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80">
+                <span class="text-slate-400">Mode Sinkronisasi WA</span>
+                <span id="detailSyncState" class="font-semibold text-emerald-400">Otomatis Aktif</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80">
+                <span class="text-slate-400">Penyimpanan Sesi</span>
+                <span id="detailSessionState" class="font-medium text-amber-400">./session (MultiFile)</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80">
+                <span class="text-slate-400">Terhubung Sejak</span>
+                <span id="detailConnectedSince" class="text-slate-400">-</span>
+              </div>
+            </div>
+
+            <!-- Session Actions -->
+            <div class="pt-3 border-t border-slate-800 space-y-2">
+              <span class="text-xs font-semibold text-slate-400">Kelola Sesi &amp; Putus Koneksi</span>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="requestDisconnect()" class="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold rounded-xl transition">
+                  Putuskan
+                </button>
+                <button onclick="requestResetSession()" class="py-2 px-3 bg-red-950/60 hover:bg-red-900 text-rose-300 border border-rose-900/50 text-xs font-bold rounded-xl transition">
+                  Reset Sesi
+                </button>
+              </div>
+            </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: ACCESS CONTROL (OWNER & PREM) -->
+    <!-- ========================================== -->
+    <section id="tab-access" class="tab-pane hidden space-y-6">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- OWNER LIST MANAGEMENT -->
+        <div class="bg-[#0f1422] border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="crown" class="w-5 h-5 text-amber-400"></i>
+              <div>
+                <h2 class="text-sm font-bold text-white">Daftar Owner Bot</h2>
+                <p class="text-[11px] text-slate-400">Tersimpan di Access/Own.json</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono font-bold bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full" id="ownerCountBadge">1 Owner</span>
+          </div>
+
+          <!-- Add Owner Input -->
+          <div class="flex items-center space-x-2">
+            <input type="text" id="newOwnerInput" placeholder="628xxxxxxxxxx" class="flex-1 bg-[#0b101a] border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-rose-500">
+            <button onclick="addOwnerNumber()" class="px-3 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl shadow-md transition">
+              Tambah
+            </button>
+          </div>
+
+          <!-- Owners List -->
+          <div class="space-y-2 max-h-72 overflow-y-auto" id="ownersListContainer">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- PREMIUM USERS MANAGEMENT -->
+        <div class="bg-[#0f1422] border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="award" class="w-5 h-5 text-rose-400"></i>
+              <div>
+                <h2 class="text-sm font-bold text-white">Daftar Pengguna Premium</h2>
+                <p class="text-[11px] text-slate-400">Tersimpan di Access/Prem.json</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono font-bold bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded-full" id="premCountBadge">0 Premium</span>
+          </div>
+
+          <!-- Add Premium Input -->
+          <div class="flex items-center space-x-2">
+            <input type="text" id="newPremInput" placeholder="628xxxxxxxxxx" class="flex-1 bg-[#0b101a] border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-rose-500">
+            <button onclick="addPremNumber()" class="px-3 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-md transition">
+              Tambah
+            </button>
+          </div>
+
+          <!-- Premiums List -->
+          <div class="space-y-2 max-h-72 overflow-y-auto" id="premiumsListContainer">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 5: LIVE TERMINAL & ACTIVITY LOGS -->
+    <!-- ========================================== -->
+    <section id="tab-logs" class="tab-pane hidden space-y-4">
+      
+      <div class="bg-[#0f1422] border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="terminal" class="w-5 h-5 text-purple-400"></i>
+            <div>
+              <h2 class="text-sm font-bold text-white">Live Activity &amp; Terminal Logs</h2>
+              <p class="text-[11px] text-slate-400">Streaming real-time aktivitas pesan, command, dan status WhatsApp</p>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <select id="logCategoryFilter" onchange="loadLogs()" class="bg-[#0b101a] border border-slate-800 text-xs rounded-lg px-2.5 py-1.5 text-slate-300 focus:outline-none">
+              <option value="ALL">Semua Kategori</option>
+              <option value="CMD">Command</option>
+              <option value="WA">WhatsApp</option>
+              <option value="SYSTEM">System</option>
+              <option value="ERROR">Error</option>
+              <option value="AUTH">Auth</option>
+            </select>
+            <button onclick="clearLogHistory()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-lg transition">
+              Bersihkan
+            </button>
+          </div>
+        </div>
+
+        <!-- Terminal Stream Window -->
+        <div class="bg-black/80 border border-slate-900 rounded-xl p-4 font-mono text-xs leading-relaxed max-h-[500px] overflow-y-auto space-y-1.5" id="terminalLogWindow">
+          <!-- Log stream appended via JS -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 6: PANDUAN DEPLOYMENT WIPSBYTE -->
+    <!-- ========================================== -->
+    <section id="tab-wipsbyte" class="tab-pane hidden space-y-6">
+
+      <div class="bg-[#0f1422] border border-slate-800 rounded-2xl p-6 space-y-6 shadow-xl">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+            <i data-lucide="server" class="w-5 h-5 text-cyan-400"></i>
+            <span>Panduan Deployment Panel Wipsbyte &amp; Hosting</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Langkah-langkah lengkap untuk menjalankan Web Dashboard dan WhatsApp Bot di panel hosting Wipsbyte, Pterodactyl, cPanel, atau VPS.
+          </p>
+        </div>
+
+        <div class="space-y-4 text-xs text-slate-300">
+          <!-- Step 1 -->
+          <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2">
+            <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+              <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs">1</span>
+              <span>Konfigurasi Startup Command di Panel Wipsbyte</span>
+            </h3>
+            <p class="text-slate-400 leading-relaxed">
+              Di panel Wipsbyte (menu <b>Startup</b> atau <b>Settings</b>), pastikan perintah startup utama adalah:
+            </p>
+            <div class="p-2.5 rounded bg-black/60 font-mono text-cyan-300 select-all">
+              npm start
+            </div>
+            <p class="text-slate-500 text-[11px]">
+              Script <code class="text-slate-300">npm start</code> akan secara otomatis menjalankan <code class="text-slate-300">node server.js</code> yang menghidupkan server web dashboard sekaligus bot engine.
+            </p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2">
+            <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+              <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs">2</span>
+              <span>Port dan Variabel Lingkungan (Environment Variables)</span>
+            </h3>
+            <p class="text-slate-400 leading-relaxed">
+              Panel Wipsbyte secara otomatis menetapkan variabel <code class="text-slate-200">PORT</code>. Web Dashboard Onepiece sudah membaca <code class="text-slate-200">process.env.PORT</code> secara dinamis sehingga tidak akan terjadi bentrok port.
+            </p>
+            <div class="p-2.5 rounded bg-black/60 font-mono text-slate-300 space-y-1">
+              <div><span class="text-rose-400">PORT</span>=3000 <span class="text-slate-500"># Atau port yang dialokasikan panel Wipsbyte</span></div>
+              <div><span class="text-rose-400">ADMIN_PASSWORD</span>=onepiece2026 <span class="text-slate-500"># Password login dashboard admin</span></div>
+              <div><span class="text-rose-400">AUTO_CONNECT_WHATSAPP</span>=false <span class="text-slate-500"># Set 'true' jika ingin otomatis konek saat restart</span></div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2">
+            <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+              <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs">3</span>
+              <span>Penyimpanan Sesi Persisten (Session Storage)</span>
+            </h3>
+            <p class="text-slate-400 leading-relaxed">
+              Kredensial login WhatsApp tersimpan secara aman di folder <code class="text-amber-400">./session/</code>. Ketika server di-restart atau panel reboot, bot akan otomatis menyambung kembali tanpa perlu scan QR ulang.
+            </p>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2">
+            <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+              <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs">4</span>
+              <span>Akses Dashboard dari Browser</span>
+            </h3>
+            <p class="text-slate-400 leading-relaxed">
+              Setelah server aktif, buka URL IP/Domain dan Port yang dialokasikan Wipsbyte (misal: <code class="text-cyan-300">http://ip-server:port</code>). Masukkan password admin untuk mulai mengontrol bot dan mengeksekusi semua command.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#111726] border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl relative">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="shield-lock" class="w-5 h-5 text-rose-500"></i>
+          <h3 class="text-base font-bold text-white">Login Admin Dashboard</h3>
+        </div>
+        <button onclick="closeLoginModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-400">Masukkan password admin untuk membuka akses eksekusi command dan pengaturan bot.</p>
+
+      <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-slate-300 block mb-1">Password Admin</label>
+          <input type="password" id="adminPasswordInput" placeholder="onepiece2026" class="w-full bg-[#0a0d14] border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-rose-500 font-mono">
+          <p class="text-[10px] text-slate-500 mt-1">Default: <code class="text-slate-400">onepiece2026</code> (bisa diubah di .env)</p>
+        </div>
+
+        <div id="loginErrorMsg" class="hidden text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-lg"></div>
+
+        <button type="submit" class="w-full py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-lg transition">
+          Masuk ke Dashboard
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- Client Script -->
+  <script src="/app.js"></script>
+</body>
+</html>
